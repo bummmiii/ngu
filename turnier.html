@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Internes Turnier</title>
+  <style>
+    :root {
+      --primary-blue: #0033A0;
+      --primary-yellow: #FFD700;
+      --background-light: #f5f5f5;
+      --text-dark: #333;
+    }
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: var(--background-light);
+      color: var(--text-dark);
+    }
+    header {
+      background: linear-gradient(90deg, var(--primary-blue), var(--primary-yellow));
+      color: white;
+      padding: 1rem;
+      display: flex;
+      align-items: center;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    header img { height: 60px; margin-right: 1rem; }
+    header h1 { margin: 0; font-size: 1.5rem; }
+    main { padding: 1rem; }
+    table { width: 100%; border-collapse: collapse; background-color: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    th, td { padding: 0.75rem; text-align: left; }
+    th { background-color: var(--primary-blue); color: white; }
+    tr:nth-child(even) { background-color: #fafafa; }
+    tr:hover { background-color: #f1f1f1; }
+    @media (max-width: 600px) {
+      table, thead, tbody, th, td, tr { display: block; }
+      th { position: absolute; top: -9999px; left: -9999px; }
+      tr { margin-bottom: 1rem; }
+      td { border: none; position: relative; padding-left: 50%; }
+      td::before { position: absolute; top: 0; left: 0; width: 45%; padding-left: 1rem; font-weight: bold; content: attr(data-label); }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <img src="wappen.png" alt="Vereinswappen">
+    <h1>Internes Turnier</h1>
+  </header>
+  <main>
+    <table id="turnier">
+      <thead>
+        <tr><th>Spieler</th><th>Trainings</th><th>Siege</th><th>Punkte</th></tr>
+      </thead>
+      <tbody>
+        <!-- Wird per Google Sheets CSV befüllt -->
+      </tbody>
+    </table>
+  </main>
+  <script>
+    // Link zum als CSV veröffentlichten Google Sheet (Spalten: Spieler,Trainings,Siege,Punkte)
+    const sheetCSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vThbOOqBM9nJZP5M3cVpcD_pX2aobK1jaOg4y-E3s5lImvZ5scSuj6KLa71mwH9wqvvNzKlfQPVVh-P/pub?output=csv';
+
+    fetch(sheetCSV)
+      .then(res => res.text())
+      .then(csv => {
+        const rows = csv.trim().split('\n').slice(1);
+        const tbody = document.querySelector('#turnier tbody');
+        rows.forEach(line => {
+          if (!line) return;
+          const [spieler, trainings, siege, punkte] = line.split(',');
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td data-label="Spieler">${spieler}</td>
+            <td data-label="Trainings">${trainings}</td>
+            <td data-label="Siege">${siege}</td>
+            <td data-label="Punkte">${punkte}</td>`;
+          tbody.appendChild(tr);
+        });
+      })
+      .catch(err => console.error('Fehler beim Laden der Daten:', err));
+  </script>
+</body>
+</html>
